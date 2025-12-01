@@ -954,9 +954,9 @@ show_ssl_completion() {
     echo "  主域名: https://$DOMAIN"
     echo
     echo -e "${GREEN}证书文件位置:${NC}"
-    echo "  证书目录: /root/cert/$DOMAIN/"
-    echo "  私钥: /root/cert/$DOMAIN/private.key"
-    echo "  完整证书链: /root/cert/$DOMAIN/fullchain.crt"
+    echo "  证书目录: /root/.cert/$DOMAIN/"
+    echo "  私钥: /root/.cert/$DOMAIN/private.key"
+    echo "  完整证书链: /root/.cert/$DOMAIN/fullchain.crt"
     echo
     echo -e "${YELLOW}注意事项:${NC}"
     echo "  1. 证书将在3个月后自动续期"
