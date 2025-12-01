@@ -127,10 +127,10 @@ install_acme() {
     
     # 检查是否已有保存的邮箱
     # 创建配置文件夹
-    mkdir -p /root/ssl_config
+    mkdir -p /root/.ssl_config
     
-    if [[ -f /root/ssl_config/global_config ]]; then
-        source /root/ssl_config/global_config
+    if [[ -f /root/.ssl_config/global_config ]]; then
+        source /root/.ssl_config/global_config
         if [[ -n "$USER_EMAIL" ]]; then
             local email_prefix="${USER_EMAIL%%@*}"
             local email_domain="${USER_EMAIL##*@}"
@@ -155,7 +155,7 @@ install_acme() {
         fi
         
         # 保存邮箱到全局配置文件
-        echo "USER_EMAIL=\"$USER_EMAIL\"" > /root/ssl_config/global_config
+        echo "USER_EMAIL=\"$USER_EMAIL\"" > /root/.ssl_config/global_config
         log_info "邮箱已保存，后续申请将自动使用此邮箱"
     fi
     
@@ -211,7 +211,7 @@ configure_cloudflare() {
     export CF_Token="$CF_Token"
     
     # 保存配置到文件
-    cat > /root/ssl_config/config_$DOMAIN << EOF
+    cat > /root/.ssl_config/config_$DOMAIN << EOF
 DOMAIN="$DOMAIN"
 CF_Token="$CF_Token"
 USER_EMAIL="$USER_EMAIL"
@@ -499,7 +499,7 @@ add_domain_records() {
 request_ssl() {
     log_step "申请SSL证书"
     
-    source /root/ssl_config/config_$DOMAIN
+    source /root/.ssl_config/config_$DOMAIN
     
     log_info "正在为域名 $DOMAIN 申请SSL证书..."
     log_info "使用Cloudflare DNS API自动验证"
@@ -566,7 +566,7 @@ request_ssl() {
 install_ssl() {
     log_step "安装SSL证书到指定路径"
     
-    source /root/ssl_config/config_$DOMAIN
+    source /root/.ssl_config/config_$DOMAIN
     
     local cert_dir="/root/.cert/$DOMAIN"
     local web_dir="/var/www/$DOMAIN"
@@ -774,7 +774,7 @@ remove_ssl_certificate() {
     
     if [[ "$remove_dns" == "y" || "$remove_dns" == "Y" ]]; then
         # 读取配置文件获取API Token
-        local config_file="/root/ssl_config/config_$selected_domain"
+        local config_file="/root/.ssl_config/config_$selected_domain"
         if [[ -f "$config_file" ]]; then
             source "$config_file"
             remove_domain_dns_records "$selected_domain" "$CF_Token"
@@ -786,7 +786,7 @@ remove_ssl_certificate() {
     fi
     
     # 删除配置文件
-    local config_file="/root/ssl_config/config_$selected_domain"
+    local config_file="/root/.ssl_config/config_$selected_domain"
     if [[ -f "$config_file" ]]; then
         echo -ne "${YELLOW}[WAIT]${NC} 删除配置文件 "
         rm -f "$config_file"
@@ -843,8 +843,8 @@ uninstall_all() {
     
     # 1. 检查DNS解析记录（简化处理，避免卡死）
     echo -ne "${YELLOW}[WAIT]${NC} 检查DNS解析记录 "
-    if [[ -d /root/ssl_config ]] && [[ -n "$(ls /root/ssl_config/config_* 2>/dev/null)" ]]; then
-        local config_count=$(ls /root/ssl_config/config_* 2>/dev/null | wc -l)
+    if [[ -d /root/.ssl_config ]] && [[ -n "$(ls /root/.ssl_config/config_* 2>/dev/null)" ]]; then
+        local config_count=$(ls /root/.ssl_config/config_* 2>/dev/null | wc -l)
         echo -e "${YELLOW}[SKIP] 发现 $config_count 个域名配置，DNS记录需手动删除${NC}"
         echo -e "${YELLOW}       提示: 请在Cloudflare控制台手动删除相关A/AAAA记录${NC}"
     else
@@ -879,7 +879,7 @@ uninstall_all() {
     
     # 5. 删除配置文件夹
     echo -ne "${YELLOW}[WAIT]${NC} 删除配置文件夹 "
-    rm -rf /root/ssl_config 2>/dev/null || true
+    rm -rf /root/.ssl_config 2>/dev/null || true
     echo -e "${GREEN}[OK]${NC}"
     
     # 6. 清理cron任务
@@ -945,7 +945,7 @@ uninstall_all() {
 
 # 显示SSL证书完成信息
 show_ssl_completion() {
-    source /root/ssl_config/config_$DOMAIN
+    source /root/.ssl_config/config_$DOMAIN
     
     echo
     log_success "[COMPLETE] SSL证书申请和配置完成！"
