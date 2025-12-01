@@ -578,7 +578,7 @@ install_ssl() {
     # 安装证书（只安装必要的两个文件）
     ~/.acme.sh/acme.sh --install-cert -d "$DOMAIN" \
         --key-file "$cert_dir/private.key" \
-        --fullchain-file "$cert_dir/fullchain.crt"
+        --fullchain-file "$cert_dir/fullchain.crt" --ecc
     
     # 设置证书文件权限
     chmod 600 "$cert_dir/private.key"
